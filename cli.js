@@ -2,12 +2,12 @@
 
 /**
  * Interactive Connect Four CLI
- * Play against the Minimax AI directly in your terminal.
+ * Powered by 64-Bit Bitboard Negamax Engine with PVS & Move Explanations.
  */
 
 const readline = require('readline');
-const { Connect4, ROWS, COLS, PLAYER_HUMAN, PLAYER_AI } = require('./src/connect4');
-const { MinimaxBot } = require('./src/minimax');
+const { Bitboard, ROWS, COLS, PLAYER_HUMAN, PLAYER_AI } = require('./src/bitboard');
+const { Engine } = require('./src/engine');
 
 // ANSI Color Codes
 const RESET = '\x1b[0m';
@@ -27,14 +27,16 @@ const rl = readline.createInterface({
 
 const ask = (query) => new Promise((resolve) => rl.question(query, resolve));
 
-function renderBoard(game) {
+function renderBoard(board, humanFirst) {
+  const grid = board.toArray2D(humanFirst);
+
   console.log('\n  ' + BOLD + CYAN + ' 0   1   2   3   4   5   6 ' + RESET);
   console.log(' ' + BLUE + '┌───┬───┬───┬───┬───┬───┬───┐' + RESET);
 
   for (let r = ROWS - 1; r >= 0; r--) {
     let rowStr = ' ' + BLUE + '│' + RESET;
     for (let c = 0; c < COLS; c++) {
-      const piece = game.board[r][c];
+      const piece = grid[r][c];
       let char = '   ';
       if (piece === PLAYER_HUMAN) {
         char = RED + ' ● ' + RESET;
@@ -55,34 +57,35 @@ function renderBoard(game) {
 async function main() {
   console.clear();
   console.log(BOLD + MAGENTA + '===================================================' + RESET);
-  console.log(BOLD + CYAN + '       CONNECT FOUR — INTELLIGENT MINIMAX BOT       ' + RESET);
+  console.log(BOLD + CYAN + '       CONNECT FOUR — NEGAMAX BITBOARD AI          ' + RESET);
   console.log(BOLD + MAGENTA + '===================================================' + RESET);
-  console.log(GRAY + 'Powered by Minimax with Alpha-Beta Pruning & Transposition Table\n' + RESET);
+  console.log(GRAY + '64-Bit Bitboard • Principal Variation Search • Zobrist Cache\n' + RESET);
 
-  console.log(`Select AI Difficulty Level:`);
+  console.log(`Select AI Difficulty / Search Depth:`);
   console.log(`  1) Casual       [Depth 3] - Fast, basic tactics`);
-  console.log(`  2) Medium       [Depth 5] - Strategic play`);
-  console.log(`  3) Hard         [Depth 7] - Deep traps, highly tactical (Recommended)`);
-  console.log(`  4) Grandmaster  [Depth 8] - Near-flawless calculation`);
+  console.log(`  2) Medium       [Depth 5] - Solid strategy`);
+  console.log(`  3) Hard         [Depth 7] - Deep traps, highly tactical`);
+  console.log(`  4) Grandmaster  [Depth 8] - Near-flawless calculation (Recommended)`);
 
-  let depthChoice = await ask('\nEnter choice (1-4) [default: 3]: ');
+  let depthChoice = await ask('\nEnter choice (1-4) [default: 4]: ');
   depthChoice = depthChoice.trim();
-  let depth = 7;
+  let depth = 8;
   if (depthChoice === '1') depth = 3;
   else if (depthChoice === '2') depth = 5;
-  else if (depthChoice === '4') depth = 8;
+  else if (depthChoice === '3') depth = 7;
 
   let firstChoice = await ask('Who goes first? (1 = You [Red], 2 = AI [Yellow]) [default: 1]: ');
   firstChoice = firstChoice.trim();
-  let currentTurn = (firstChoice === '2') ? PLAYER_AI : PLAYER_HUMAN;
+  const humanFirst = (firstChoice !== '2');
+  let currentTurn = humanFirst ? PLAYER_HUMAN : PLAYER_AI;
 
-  const game = new Connect4();
-  const bot = new MinimaxBot({ depth });
+  const board = new Bitboard();
+  const engine = new Engine({ depth });
 
-  console.log(`\nGame initialized! AI Depth: ${depth}. Good luck, you will need it!`);
+  console.log(`\nGame initialized! AI Depth: ${depth} ply. Good luck!`);
 
-  while (!game.gameOver) {
-    renderBoard(game);
+  while (!board.isWinForLastPlayer() && !board.isBoardFull()) {
+    renderBoard(board, humanFirst);
 
     if (currentTurn === PLAYER_HUMAN) {
       let col = -1;
@@ -94,36 +97,46 @@ async function main() {
           return;
         }
         col = parseInt(input.trim(), 10);
-        if (!isNaN(col) && game.isValidMove(col)) {
+        if (!isNaN(col) && board.isValidMove(col)) {
           break;
         }
         console.log(RED + 'Invalid column! Please pick an open column between 0 and 6.' + RESET);
       }
 
-      game.makeMove(col, PLAYER_HUMAN);
+      board.makeMove(col);
       currentTurn = PLAYER_AI;
     } else {
-      console.log(YELLOW + 'AI is computing best move...' + RESET);
+      console.log(YELLOW + 'AI is computing optimal line via Negamax PVS...' + RESET);
       const startTime = Date.now();
-      const bestCol = bot.getBestMove(game);
+      const bestCol = engine.search(board, { depth });
       const elapsed = Date.now() - startTime;
 
       console.log(
-        GREEN + `AI played column ${bestCol}` + RESET +
-        GRAY + ` (Evaluated ${bot.stats.nodesEvaluated.toLocaleString()} nodes in ${elapsed}ms, depth: ${depth})` + RESET
+        GREEN + `AI played Column ${bestCol}` + RESET +
+        GRAY + ` (${engine.stats.nodesEvaluated.toLocaleString()} nodes, ${engine.stats.nodesPerSec.toLocaleString()} nps, ${elapsed}ms)` + RESET
       );
+      if (engine.stats.explanation) {
+        console.log(CYAN + `💡 Motive: ${engine.stats.explanation}` + RESET);
+      }
+      if (engine.stats.pvLine && engine.stats.pvLine.length > 1) {
+        console.log(GRAY + `🔮 Forecast (PV): ${engine.stats.pvLine.map(c => `Col ${c}`).join(' ➔ ')}` + RESET);
+      }
 
-      game.makeMove(bestCol, PLAYER_AI);
+      board.makeMove(bestCol);
       currentTurn = PLAYER_HUMAN;
     }
   }
 
-  renderBoard(game);
+  renderBoard(board, humanFirst);
 
-  if (game.winner === PLAYER_HUMAN) {
-    console.log(BOLD + GREEN + '🎉 CONGRATULATIONS! You defeated the Minimax Bot! (Astonishing achievement!)' + RESET);
-  } else if (game.winner === PLAYER_AI) {
-    console.log(BOLD + RED + '💀 GAME OVER! The Minimax Bot has defeated you!' + RESET);
+  if (board.isWinForLastPlayer()) {
+    // Last player made winning move
+    const winner = (currentTurn === PLAYER_HUMAN) ? PLAYER_AI : PLAYER_HUMAN;
+    if (winner === PLAYER_HUMAN) {
+      console.log(BOLD + GREEN + '🎉 CONGRATULATIONS! You defeated the Negamax Engine!' + RESET);
+    } else {
+      console.log(BOLD + RED + '💀 GAME OVER! The Negamax Engine has defeated you!' + RESET);
+    }
   } else {
     console.log(BOLD + YELLOW + '🤝 DRAW! The board is completely full with no winner.' + RESET);
   }
