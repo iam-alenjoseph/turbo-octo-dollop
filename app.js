@@ -271,17 +271,17 @@ function renderBoard() {
     // Winner is whoever made the last move
     const lastPlayer = (state.currentTurn === PLAYER_HUMAN) ? PLAYER_AI : PLAYER_HUMAN;
     if (lastPlayer === PLAYER_HUMAN) {
-      statusMessage.textContent = '🎉 You defeated the AI!';
+      statusMessage.textContent = 'You defeated the AI!';
       turnIndicator.className = 'turn-indicator-disc';
       turnIndicator.style.background = 'var(--green)';
       state.sound.playWin();
     } else {
-      statusMessage.textContent = '💀 AI Bot Wins!';
+      statusMessage.textContent = 'AI Bot Wins!';
       turnIndicator.className = 'turn-indicator-disc ai';
       state.sound.playLose();
     }
   } else if (state.board.isBoardFull()) {
-    statusMessage.textContent = '🤝 Game Drawn!';
+    statusMessage.textContent = 'Game Drawn!';
     turnIndicator.className = 'turn-indicator-disc';
     turnIndicator.style.background = 'var(--text-muted)';
   } else {
@@ -423,10 +423,10 @@ function handleColumnClick(col) {
   // Check if puzzle is active and user solved it
   if (state.activePuzzle) {
     if (col === state.activePuzzle.solution) {
-      tacticalExplanation.textContent = `🎯 Excellent! Column ${col} is the optimal tactical solution!`;
+      tacticalExplanation.textContent = `Column ${col} is the optimal tactical solution.`;
       tacticalTag.textContent = 'SOLVED';
     } else {
-      tacticalExplanation.textContent = `❌ Inaccurate move. Solution hint: ${state.activePuzzle.hint}`;
+      tacticalExplanation.textContent = `Inaccurate move. Solution hint: ${state.activePuzzle.hint}`;
       tacticalTag.textContent = 'INCORRECT';
     }
   }
@@ -646,7 +646,7 @@ function setupListeners() {
 
   soundToggleBtn.addEventListener('click', () => {
     state.sound.enabled = !state.sound.enabled;
-    soundToggleBtn.textContent = state.sound.enabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    soundToggleBtn.textContent = state.sound.enabled ? 'Sound: ON' : 'Sound: OFF';
     state.sound.playClick();
   });
 

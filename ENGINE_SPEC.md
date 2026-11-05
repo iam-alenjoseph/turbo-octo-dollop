@@ -1,4 +1,4 @@
-# Connect Four Engine Specification
+﻿# Connect Four Engine Specification
 
 A competitive Connect Four adversarial search engine built in JavaScript using 64-bit bitboards, Negamax with Alpha-Beta pruning, Principal Variation Search (PVS), Zobrist transposition tables, and Web Worker background execution.
 
@@ -8,9 +8,9 @@ A competitive Connect Four adversarial search engine built in JavaScript using 6
 
 A standard Connect Four board is 7 columns by 6 rows (42 playable slots).
 
-Instead of a 2D array (`board[6][7]`), the board state is packed into two 64-bit integers (`BigInt` in JS):
-- `position`: bitmask of the current player's pieces
-- `mask`: bitmask of all occupied cells on the board
+Instead of a 2D array, the board state is packed into two 64-bit integers:
+- position: bitmask of the current player's pieces
+- mask: bitmask of all occupied cells on the board
 
 Each column is allocated 7 bits (6 rows for pieces + 1 sentinel zero bit):
 
@@ -26,7 +26,7 @@ C0  C1  C2  C3  C4  C5  C6
 ```
 
 ### 1.1 Sentinel Bit Boundary
-The 7th bit of each column is permanently set to `0`. When bit-shifting horizontally (`>> 7n`) or diagonally (`>> 8n` or `>> 6n`), the sentinel bit acts as a boundary fence, preventing bits in row 5 of column $C$ from bleeding into row 0 of column $C+1$.
+The 7th bit of each column is permanently set to 0. When bit-shifting horizontally or diagonally, the sentinel bit acts as a boundary fence, preventing bits in row 5 of column C from bleeding into row 0 of column C+1.
 
 ### 1.2 Win Detection
 To check if a player has connected four pieces anywhere on the board:
@@ -53,53 +53,37 @@ static checkWin(pos) {
 }
 ```
 
-The entire board is verified in ~8 CPU instructions without looping over 69 coordinate windows.
+The entire board is verified in 8 CPU instructions without looping over 69 coordinate windows.
 
 ### 1.3 Move Generation & Gravity
-Dropping a chip in column `col`:
+Dropping a chip in column col:
 ```javascript
 const newMask = mask | (mask + (1n << BigInt(col * 7)));
 const newPosition = position ^ mask;
 ```
-Adding the bottom bit of `col` naturally cascades to the lowest unoccupied cell in that column via binary carry addition.
 
 ---
 
 ## 2. Search Pipeline
 
 ### 2.1 Negamax Formulation
-Negamax relies on zero-sum symmetry: $\max(a, b) = -\min(-a, -b)$.  
-Every recursive call negates the evaluation and flips the search window:
-```javascript
-score = -this.negamax(board, depth - 1, -beta, -alpha, ply + 1);
-```
+Negamax relies on zero-sum symmetry: max(a, b) = -min(-a, -b).
+Every recursive call negates the evaluation and flips the search window.
 
 ### 2.2 Principal Variation Search (PVS)
-Standard Alpha-Beta runs full-width searches on every legal move. PVS assumes move ordering is mostly accurate (the first move evaluated is likely the best move):
-
-1. Evaluate move 0 with the full window: `[-beta, -alpha]`.
-2. Evaluate moves 1 through $N$ with a zero-width scout window: `[-alpha - 1, -alpha]`.
-3. If a scout search returns a score $> \alpha$, the initial assumption failed ("failed high"). Re-search that specific move with the full window `[-beta, -alpha]`.
-
-This significantly reduces the number of nodes evaluated on suboptimal branches.
+1. Evaluate move 0 with the full window: [-beta, -alpha].
+2. Evaluate moves 1 through N with a zero-width scout window: [-alpha - 1, -alpha].
+3. If a scout search returns a score > alpha, re-search with the full window [-beta, -alpha].
 
 ### 2.3 Move Ordering Priority
-To maximize cutoffs in Alpha-Beta and PVS, candidate moves are sorted before search:
-1. **Transposition Table move**: Move previously marked optimal for this position.
-2. **Immediate winning moves**: Identified via quick bitwise win checks.
-3. **Killer moves**: Moves that produced beta-cutoffs at this same ply in sibling branches.
-4. **History heuristic score**: Table counting how often each column triggered cutoffs across the search tree.
-5. **Center-outward proximity**: Columns `[3, 2, 4, 1, 5, 0, 6]` (center column touches 16 winning trajectories vs 4 on flanks).
+1. Transposition Table move
+2. Immediate winning moves
+3. Killer moves
+4. History heuristic score
+5. Center-outward proximity [3, 2, 4, 1, 5, 0, 6]
 
 ### 2.4 Transposition Table & Zobrist Hashing
-Positions reached via different move orders (e.g., column 3 then column 2 vs column 2 then column 3) yield identical bitboards.
-
-- The board state key `position + mask` uniquely maps the 42 cells.
-- Stored records contain `{ depth, score, flag, bestMove }`.
-- Flags:
-  - `TT_EXACT`: search finished within $[\alpha, \beta]$ (true value).
-  - `TT_LOWERBOUND`: score $\ge \beta$ (beta-cutoff, true score is at least this value).
-  - `TT_UPPERBOUND`: score $\le \alpha$ (all moves failed low, true score is at most this value).
+Board state key uniquely maps the 42 cells. Stored records contain depth, score, flag (EXACT, LOWERBOUND, UPPERBOUND), and bestMove.
 
 ---
 
@@ -118,4 +102,4 @@ Benchmarked on Node.js v24 (V8 engine):
 
 ## 4. Concurrency via Web Workers
 
-To keep the UI responsive at 60 FPS, search computation is completely offloaded to a dedicated Web Worker (`worker.js`). The worker receives the move history, executes iterative deepening search in the background, and posts progress back to the main UI thread via asynchronous message passing.
+Search computation is offloaded to a dedicated Web Worker (worker.js) to keep the UI responsive at 60 FPS.

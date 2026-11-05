@@ -116,10 +116,10 @@ async function main() {
         GRAY + ` (${engine.stats.nodesEvaluated.toLocaleString()} nodes, ${engine.stats.nodesPerSec.toLocaleString()} nps, ${elapsed}ms)` + RESET
       );
       if (engine.stats.explanation) {
-        console.log(CYAN + `💡 Motive: ${engine.stats.explanation}` + RESET);
+        console.log(CYAN + `Motive: ${engine.stats.explanation}` + RESET);
       }
       if (engine.stats.pvLine && engine.stats.pvLine.length > 1) {
-        console.log(GRAY + `🔮 Forecast (PV): ${engine.stats.pvLine.map(c => `Col ${c}`).join(' ➔ ')}` + RESET);
+        console.log(GRAY + `Forecast (PV): ${engine.stats.pvLine.map(c => `Col ${c}`).join(' -> ')}` + RESET);
       }
 
       board.makeMove(bestCol);
@@ -133,12 +133,12 @@ async function main() {
     // Last player made winning move
     const winner = (currentTurn === PLAYER_HUMAN) ? PLAYER_AI : PLAYER_HUMAN;
     if (winner === PLAYER_HUMAN) {
-      console.log(BOLD + GREEN + '🎉 CONGRATULATIONS! You defeated the Negamax Engine!' + RESET);
+      console.log(BOLD + GREEN + 'CONGRATULATIONS! You defeated the Negamax Engine!' + RESET);
     } else {
-      console.log(BOLD + RED + '💀 GAME OVER! The Negamax Engine has defeated you!' + RESET);
+      console.log(BOLD + RED + 'GAME OVER! The Negamax Engine has defeated you!' + RESET);
     }
   } else {
-    console.log(BOLD + YELLOW + '🤝 DRAW! The board is completely full with no winner.' + RESET);
+    console.log(BOLD + YELLOW + 'DRAW! The board is completely full with no winner.' + RESET);
   }
 
   const playAgain = await ask('\nWould you like to play again? (y/n): ');

@@ -1,10 +1,10 @@
-# 🤖 Connect Four — Intelligent Minimax Game Tree Bot
+# Connect Four — Intelligent Minimax Game Tree Bot
 
 An adversarial zero-sum AI bot engineered to consistently defeat human players at **Connect Four (7×6)** using the **Minimax Game Tree Algorithm** enhanced with **Alpha-Beta Pruning**, **Center-Outward Move Ordering**, **Transposition Memoization**, and **Positional Threat Heuristics**.
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### 1. Launch the Interactive Web App
 You can run the built-in zero-dependency server:
@@ -33,7 +33,7 @@ npm test
 
 ---
 
-## 🧠 Algorithmic Architecture
+## Algorithmic Architecture
 
 Connect Four has an estimated state-space complexity of approximately $4.5 \times 10^{12}$ positions. To make optimal decisions in real-time, this bot leverages a multi-layered adversarial search pipeline:
 
@@ -111,12 +111,12 @@ When the search reaches cutoff depth $d=0$, non-terminal positions are scored ac
 
 ---
 
-## 🎮 Interactive Web Features
+## Interactive Web Features
 
 - **Live AI Brain Telemetry:** Displays total nodes searched, search depth, think time (ms), and transposition cache hit rate.
 - **Chess-Style Evaluation Bar:** Dynamic visual advantage meter indicating whether the AI or human has positional superiority.
 - **Real-Time Column Scores:** Shows the evaluated minimax score for all 7 columns.
-- **Synthesized Sound FX:** Zero-asset retro/tactile audio built with the HTML5 Web Audio API.
+- **Synthesized Sound FX:** Zero-asset audio built with the HTML5 Web Audio API.
 - **Difficulty Modes:**
   - *Casual* (Depth 3)
   - *Medium* (Depth 5)
@@ -127,24 +127,29 @@ When the search reaches cutoff depth $d=0$, non-terminal positions are scored ac
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 BOTTY/
 ├── index.html          # Web UI layout & styling structure
-├── style.css           # Glassmorphism dark cyberpunk UI theme
-├── app.js              # DOM controllers, Web Audio FX & game loop
-├── cli.js              # Full-featured terminal interface
+├── style.css           # Dark theme styling & animations
+├── app.js              # DOM controller, Web Audio FX & game loop
+├── cli.js              # Command line terminal interface
 ├── server.js           # Lightweight static server (zero dependencies)
+├── worker.js           # Multi-threaded Web Worker background engine
 ├── package.json        # NPM scripts & metadata
+├── ENGINE_SPEC.md      # Detailed technical specification
 ├── src/
-│   ├── connect4.js     # 7x6 bitboard/grid logic & win verification
-│   └── minimax.js      # Alpha-Beta minimax engine & heuristic evaluation
+│   ├── bitboard.js     # 64-bit SIMD bitboard engine & win checks
+│   ├── engine.js       # Negamax search, PVS & heuristic evaluation
+│   ├── puzzles.js      # Tactical endgame challenges
+│   ├── connect4.js     # Classical grid representation
+│   └── minimax.js      # Traditional Minimax implementation
 └── test/
-    └── benchmark.js    # Performance benchmarks & tactical puzzle suites
+    └── benchmark.js    # Performance benchmarks & tactical tests
 ```
 
 ---
 
-## 📜 License
+## License
 MIT License. Created for competitive game tree research and AI demonstration.

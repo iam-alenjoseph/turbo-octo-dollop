@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connect Four AI — 64-Bit Bitboard Negamax Engine</title>
+  <title>Connect Four AI - 64-Bit Bitboard Negamax Engine</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- Top Navigation Header -->
   <header>
     <div class="logo-container">
-      <div class="bot-icon">⚡</div>
+      <div class="bot-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+      </div>
       <div class="title-text">
         <h1>CONNECT FOUR // NEGAMAX BITBOARD AI</h1>
         <p>
@@ -24,12 +31,12 @@
     </div>
     <div class="header-actions">
       <button id="puzzlesBtn" class="btn btn-accent">
-        🧩 Tactics Trainer
+        Tactics Trainer
       </button>
       <button id="portfolioBtn" class="btn">
-        📖 Engine Specification
+        Engine Specification
       </button>
-      <button id="soundToggleBtn" class="btn">🔊 Sound: ON</button>
+      <button id="soundToggleBtn" class="btn">Sound: ON</button>
     </div>
   </header>
 
@@ -68,13 +75,14 @@
 
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1.25rem;">
         <button id="newGameBtn" class="btn btn-primary" style="justify-content: center;">
-          ⚡ Restart Game
+          Restart Game
         </button>
         <button id="undoBtn" class="btn" style="justify-content: center;">
-          ↶ Undo Last Move
+          Undo Last Move
         </button>
-        <button id="solveBtn" class="btn" style="justify-content: center; border-color: var(--cyan); color: var(--cyan);">
-          🧠 Compute Best Move For Current Player
+        <button id="solveBtn" class="btn"
+          style="justify-content: center; border-color: var(--cyan); color: var(--cyan);">
+          Compute Best Move
         </button>
       </div>
 
@@ -105,13 +113,27 @@
 
       <!-- Ghost preview disc row tracking user cursor -->
       <div class="preview-row" id="previewRow">
-        <div class="preview-slot" data-col="0"><div class="preview-disc"></div></div>
-        <div class="preview-slot" data-col="1"><div class="preview-disc"></div></div>
-        <div class="preview-slot" data-col="2"><div class="preview-disc"></div></div>
-        <div class="preview-slot" data-col="3"><div class="preview-disc"></div></div>
-        <div class="preview-slot" data-col="4"><div class="preview-disc"></div></div>
-        <div class="preview-slot" data-col="5"><div class="preview-disc"></div></div>
-        <div class="preview-slot" data-col="6"><div class="preview-disc"></div></div>
+        <div class="preview-slot" data-col="0">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="1">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="2">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="3">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="4">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="5">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="6">
+          <div class="preview-disc"></div>
+        </div>
       </div>
 
       <!-- 7x6 Board Grid -->
@@ -135,7 +157,7 @@
       <!-- Tactical Explanation & Principal Variation Trail -->
       <div class="tactical-box">
         <div class="tactical-box-header">
-          <span>🧠 Tactical Motive & AI Reasoning</span>
+          <span>Tactical Motive & Engine Reasoning</span>
           <span id="tacticalTag" class="tag-badge">READY</span>
         </div>
         <div class="tactical-text" id="tacticalExplanation">
@@ -155,7 +177,7 @@
       <h2 class="card-title"><span class="pulse"></span> Engine Telemetry</h2>
 
       <div class="speedup-badge">
-        <span>⚡ 64-Bit Bitboard Engine</span>
+        <span>64-Bit Bitboard Engine</span>
         <span>24.8x Throughput</span>
       </div>
 
@@ -203,11 +225,12 @@
   <div class="modal-overlay" id="puzzlesModal">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 style="font-size: 1.2rem; color: #fff;">🧩 Tactical Puzzles & Solved Challenges</h2>
+        <h2 style="font-size: 1.2rem; color: #fff;">Tactical Puzzles & Solved Challenges</h2>
         <button class="modal-close" id="puzzlesCloseBtn">&times;</button>
       </div>
       <div class="modal-body">
-        <p style="margin-bottom: 1rem;">Select a master-level endgame puzzle. Test whether you can spot the game-theoretic winning sequence, or let the AI solve it instantly!</p>
+        <p style="margin-bottom: 1rem;">Select a master-level endgame puzzle. Test whether you can spot the
+          game-theoretic winning sequence, or let the AI solve it instantly!</p>
         <div class="puzzle-grid" id="puzzleList">
           <!-- Dynamically populated from puzzles.js -->
         </div>
@@ -219,26 +242,38 @@
   <div class="modal-overlay" id="portfolioModal">
     <div class="modal-card" style="max-width: 760px;">
       <div class="modal-header">
-        <h2 style="font-size: 1.25rem; color: #fff;">📖 Engine Specification & Technical Internals</h2>
+        <h2 style="font-size: 1.25rem; color: #fff;">Engine Specification & Technical Internals</h2>
         <button class="modal-close" id="portfolioCloseBtn">&times;</button>
       </div>
       <div class="modal-body">
         <h3>1. 64-Bit Bitboard Representation</h3>
-        <p>The 7×6 grid is packed into two 49-bit integer bitmasks (<span class="code-badge">position</span> and <span class="code-badge">mask</span>) across a 64-bit BigInt. Each column occupies 7 bits (6 playable rows plus 1 sentinel zero bit at the top). Terminal win verification executes in <strong>4 bitwise shifts and AND operations</strong> in sub-2-nanosecond time, completely eliminating loops and array lookups.</p>
+        <p>The 7×6 grid is packed into two 49-bit integer bitmasks (<span class="code-badge">position</span> and <span
+            class="code-badge">mask</span>) across a 64-bit BigInt. Each column occupies 7 bits (6 playable rows plus 1
+          sentinel zero bit at the top). Terminal win verification executes in <strong>4 bitwise shifts and AND
+            operations</strong> in sub-2-nanosecond time, completely eliminating loops and array lookups.</p>
 
         <h3>2. Negamax Search with PVS</h3>
-        <p>The engine leverages zero-sum mathematical symmetry: <span class="code-badge">NegaMax(s, α, β) = max(-NegaMax(s', -β, -α))</span>. Under <strong>Principal Variation Search (PVS)</strong>, candidate moves are pre-sorted by heuristic priority. The primary move is searched with a full <span class="code-badge">[α, β]</span> window, while all remaining siblings are evaluated using null-window scout searches <span class="code-badge">[-α - 1, -α]</span> to force aggressive beta-cutoffs.</p>
+        <p>The engine leverages zero-sum mathematical symmetry: <span class="code-badge">NegaMax(s, α, β) =
+            max(-NegaMax(s', -β, -α))</span>. Under <strong>Principal Variation Search (PVS)</strong>, candidate moves
+          are pre-sorted by heuristic priority. The primary move is searched with a full <span class="code-badge">[α,
+            β]</span> window, while all remaining siblings are evaluated using null-window scout searches <span
+            class="code-badge">[-α - 1, -α]</span> to force aggressive beta-cutoffs.</p>
 
         <h3>3. Dynamic Move Ordering & Transposition Caching</h3>
         <ul>
           <li><strong>Zobrist Incremental Hashing:</strong> State updates execute in O(1) via XOR bit manipulation.</li>
-          <li><strong>Transposition Cache:</strong> 600,000 entries caching exact evaluations, upper bounds, and lower bounds to eliminate redundant subtree evaluation.</li>
-          <li><strong>Killer & History Heuristics:</strong> Dynamically elevates non-capture moves that induced beta-cutoffs in sibling branches.</li>
-          <li><strong>Center Proximity:</strong> Prioritizes central columns [3, 2, 4, 1, 5, 0, 6] controlling up to 16 winning alignments.</li>
+          <li><strong>Transposition Cache:</strong> 600,000 entries caching exact evaluations, upper bounds, and lower
+            bounds to eliminate redundant subtree evaluation.</li>
+          <li><strong>Killer & History Heuristics:</strong> Dynamically elevates non-capture moves that induced
+            beta-cutoffs in sibling branches.</li>
+          <li><strong>Center Proximity:</strong> Prioritizes central columns [3, 2, 4, 1, 5, 0, 6] controlling up to 16
+            winning alignments.</li>
         </ul>
 
         <h3>4. Web Worker Threading</h3>
-        <p>Search computation is completely decoupled from the DOM. A dedicated Web Worker executes tree traversal on a background thread while posting progress metrics to the main UI thread, preserving a 60 FPS animation loop during deep plies.</p>
+        <p>Search computation is completely decoupled from the DOM. A dedicated Web Worker executes tree traversal on a
+          background thread while posting progress metrics to the main UI thread, preserving a 60 FPS animation loop
+          during deep plies.</p>
       </div>
     </div>
   </div>
@@ -253,4 +288,5 @@
   <script src="src/puzzles.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>

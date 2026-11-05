@@ -50,7 +50,7 @@ puzzle1.makeMove(1, PLAYER_HUMAN);
 // AI has 3 vertical in column 3. Should immediately play col 3.
 const bot1 = new MinimaxBot({ depth: 5 });
 const move1 = bot1.getBestMove(puzzle1);
-console.log(`Puzzle 1 (AI vertical win at col 3): ${move1 === 3 ? '✅ PASSED' : '❌ FAILED'} (Chose: ${move1})`);
+console.log(`Puzzle 1 (AI vertical win at col 3): ${move1 === 3 ? 'PASSED' : 'FAILED'} (Chose: ${move1})`);
 
 // Test 2: Immediate defense
 const puzzle2 = new Connect4();
@@ -62,6 +62,6 @@ puzzle2.makeMove(4, PLAYER_HUMAN);
 // Human has 2, 3, 4 horizontally. AI MUST block at 1 or 5.
 const bot2 = new MinimaxBot({ depth: 5 });
 const move2 = bot2.getBestMove(puzzle2);
-console.log(`Puzzle 2 (Block human horizontal threat at 1 or 5): ${(move2 === 1 || move2 === 5) ? '✅ PASSED' : '❌ FAILED'} (Chose: ${move2})`);
+console.log(`Puzzle 2 (Block human horizontal threat at 1 or 5): ${(move2 === 1 || move2 === 5) ? 'PASSED' : 'FAILED'} (Chose: ${move2})`);
 
 console.log('\nAll benchmarks completed successfully!');
