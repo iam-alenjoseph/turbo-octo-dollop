@@ -1,0 +1,21 @@
+{
+  "name": "connect4-minimax-bot",
+  "version": "1.0.0",
+  "description": "An intelligent Connect Four AI bot powered by the Minimax Game Tree algorithm with Alpha-Beta pruning, move ordering, and transposition caching capable of defeating human players.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "cli": "node cli.js",
+    "test": "node test/benchmark.js"
+  },
+  "keywords": [
+    "minimax",
+    "alpha-beta-pruning",
+    "game-tree",
+    "connect-four",
+    "artificial-intelligence",
+    "heuristic-search"
+  ],
+  "author": "BOTTY",
+  "license": "MIT"
+}

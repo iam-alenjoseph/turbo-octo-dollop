@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Four AI — Minimax Game Tree Bot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="logo-container">
+      <div class="bot-icon"></div>
+      <div class="title-text">
+        <h1>CONNECT FOUR // MINIMAX BOT</h1>
+        <p>ALPHA-BETA PRUNING • TRANSPOSITION CACHE • DEPTH 8</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="guideBtn" class="btn">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+          <path
+            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+        </svg>
+        Algorithm Guide
+      </button>
+      <button id="soundToggleBtn" class="btn">Sound: ON</button>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Arena -->
+  <main class="main-wrapper">
+
+    <!-- Left Column: Controls & Game Setup -->
+    <aside class="card">
+      <h2 class="card-title"><span class="pulse"></span> Game Controls</h2>
+
+      <div class="control-group">
+        <label class="control-label">AI Difficulty / Search Depth</label>
+        <div class="segmented-control" id="difficultyGroup">
+          <button data-depth="3">Casual (3)</button>
+          <button data-depth="5">Medium (5)</button>
+          <button data-depth="7" class="active">Hard (7)</button>
+          <button data-depth="8">Grandmaster (8)</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">First Move</label>
+        <div class="segmented-control" id="starterGroup">
+          <button data-starter="human" class="active">Human First (Red)</button>
+          <button data-starter="ai">AI First (Yellow)</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Game Mode</label>
+        <div class="segmented-control" id="modeGroup">
+          <button data-mode="vs-ai" class="active">Play vs AI</button>
+          <button data-mode="ai-vs-ai">AI vs AI Spectator</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1.5rem;">
+        <button id="newGameBtn" class="btn btn-primary" style="justify-content: center;">
+          ⚡ Restart Game
+        </button>
+        <button id="undoBtn" class="btn" style="justify-content: center;">
+          ↶ Undo Last Move
+        </button>
+      </div>
+
+      <div class="eval-widget">
+        <div class="control-label" style="display: flex; justify-content: space-between;">
+          <span>Engine Evaluation</span>
+          <span id="evalScoreText" style="color: var(--cyan); font-family: monospace;">0.00</span>
+        </div>
+        <div class="eval-bar-track">
+          <div id="evalBarFill" class="eval-bar-fill"></div>
+        </div>
+        <div class="eval-legend">
+          <span style="color: var(--red);">● Human Favor</span>
+          <span style="color: var(--yellow);">AI Favor ⬤</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Column: The Connect 4 Arena -->
+    <section class="game-arena">
+      <div class="status-bar">
+        <div class="turn-pill">
+          <div id="turnIndicator" class="turn-indicator-disc"></div>
+          <span id="statusMessage">Your Turn (Red)</span>
+        </div>
+        <div id="moveBadge" class="status-badge">Move: #0</div>
+      </div>
+
+      <!-- Ghost preview disc row tracking user cursor -->
+      <div class="preview-row" id="previewRow">
+        <div class="preview-slot" data-col="0">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="1">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="2">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="3">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="4">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="5">
+          <div class="preview-disc"></div>
+        </div>
+        <div class="preview-slot" data-col="6">
+          <div class="preview-disc"></div>
+        </div>
+      </div>
+
+      <!-- 7x6 Board Grid -->
+      <div class="board-container">
+        <div class="board-grid" id="boardGrid">
+          <!-- 42 cells dynamically generated -->
+        </div>
+      </div>
+
+      <!-- Real-time Column Scores -->
+      <div class="column-hints" id="columnHints">
+        <div class="col-hint" data-col="0">-</div>
+        <div class="col-hint" data-col="1">-</div>
+        <div class="col-hint" data-col="2">-</div>
+        <div class="col-hint" data-col="3">-</div>
+        <div class="col-hint" data-col="4">-</div>
+        <div class="col-hint" data-col="5">-</div>
+        <div class="col-hint" data-col="6">-</div>
+      </div>
+    </section>
+
+    <!-- Right Column: AI Brain Telemetry Panel -->
+    <aside class="card">
+      <h2 class="card-title"><span class="pulse"></span> AI Brain Telemetry</h2>
+
+      <div class="telemetry-grid">
+        <div class="metric-box">
+          <div class="metric-label">Nodes Searched</div>
+          <div class="metric-value" id="statNodes">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Think Time</div>
+          <div class="metric-value" id="statTime">0 ms</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Search Depth</div>
+          <div class="metric-value" id="statDepth">7 ply</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Cache Hits</div>
+          <div class="metric-value" id="statHits">0</div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label" style="display: flex; justify-content: space-between;">
+          <span>Search Depth Progress</span>
+          <span id="depthRatio">7 / 8</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="depthBar" class="progress-bar-fill" style="width: 87.5%;"></div>
+        </div>
+      </div>
+
+      <div class="control-group" style="margin-bottom: 0;">
+        <label class="control-label">Move History Log</label>
+        <div class="move-log" id="moveLog">
+          <div style="color: var(--text-dim); text-align: center; padding: 15px 0;">
+            Awaiting first move...
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Algorithm Guide Modal -->
+  <div class="modal-overlay" id="guideModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="font-size: 1.2rem; color: #fff;">Minimax Algorithm Architecture</h2>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>This bot implements an adversarial zero-sum search engine tailored for Connect Four.</p>
+
+        <h3>1. Minimax Game Tree</h3>
+        <p>The AI models the game as an alternating tree: the AI seeks to maximize utility (<span
+            class="code-badge">+∞</span>) while assuming the human plays optimally to minimize utility (<span
+            class="code-badge">-∞</span>).</p>
+
+        <h3>2. Alpha-Beta Pruning</h3>
+        <p>Maintains two parameters during depth-first search:</p>
+        <ul>
+          <li><strong>Alpha (α):</strong> The highest score the maximizing player is guaranteed.</li>
+          <li><strong>Beta (β):</strong> The lowest score the minimizing player is guaranteed.</li>
+        </ul>
+        <p>Whenever <span class="code-badge">α ≥ β</span>, the current branch is pruned. This drops time complexity from
+          <span class="code-badge">O(b^d)</span> towards <span class="code-badge">O(b^(d/2))</span>.
+        </p>
+
+        <h3>3. Move Ordering Optimization</h3>
+        <p>Columns are evaluated center-outward: <span class="code-badge">[3, 2, 4, 1, 5, 0, 6]</span>. In Connect Four,
+          central columns participate in up to 16 four-in-a-row alignments (vs 4 in the corners), forcing rapid
+          alpha-beta cutoffs early in search.</p>
+
+        <h3>4. Transposition Table</h3>
+        <p>Different move orders often reach identical board layouts. A 64-bit state key caches previously calculated
+          evaluations and optimal sub-moves, eliminating redundant calculations.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Connect Four Minimax Engine • Built with Alpha-Beta Pruning & Heuristic Game Tree Evaluation
+  </footer>
+
+  <!-- Scripts -->
+  <script src="src/connect4.js"></script>
+  <script src="src/minimax.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
