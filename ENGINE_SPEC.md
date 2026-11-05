@@ -1,4 +1,4 @@
-﻿# Connect Four Engine Specification
+# Connect Four Engine Specification
 
 A competitive Connect Four adversarial search engine built in JavaScript using 64-bit bitboards, Negamax with Alpha-Beta pruning, Principal Variation Search (PVS), Zobrist transposition tables, and Web Worker background execution.
 

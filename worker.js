@@ -47,3 +47,4 @@ self.onmessage = function (e) {
     self.postMessage({ type: 'cleared' });
   }
 };
+
