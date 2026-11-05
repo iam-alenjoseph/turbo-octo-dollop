@@ -27,7 +27,7 @@
         🧩 Tactics Trainer
       </button>
       <button id="portfolioBtn" class="btn">
-        📄 Resume & System Design
+        📖 Engine Specification
       </button>
       <button id="soundToggleBtn" class="btn">🔊 Sound: ON</button>
     </div>
@@ -215,37 +215,30 @@
     </div>
   </div>
 
-  <!-- Portfolio & Architecture Modal -->
+  <!-- Engine Specification Modal -->
   <div class="modal-overlay" id="portfolioModal">
     <div class="modal-card" style="max-width: 760px;">
       <div class="modal-header">
-        <h2 style="font-size: 1.25rem; color: #fff;">📄 System Architecture & Interview Portfolio Guide</h2>
+        <h2 style="font-size: 1.25rem; color: #fff;">📖 Engine Specification & Technical Internals</h2>
         <button class="modal-close" id="portfolioCloseBtn">&times;</button>
       </div>
       <div class="modal-body">
-        <h3>📌 Production System Architecture</h3>
-        <p>This engine demonstrates top-tier systems engineering, low-level bitwise computing, and adversarial game theory:</p>
+        <h3>1. 64-Bit Bitboard Representation</h3>
+        <p>The 7×6 grid is packed into two 49-bit integer bitmasks (<span class="code-badge">position</span> and <span class="code-badge">mask</span>) across a 64-bit BigInt. Each column occupies 7 bits (6 playable rows plus 1 sentinel zero bit at the top). Terminal win verification executes in <strong>4 bitwise shifts and AND operations</strong> in sub-2-nanosecond time, completely eliminating loops and array lookups.</p>
+
+        <h3>2. Negamax Search with PVS</h3>
+        <p>The engine leverages zero-sum mathematical symmetry: <span class="code-badge">NegaMax(s, α, β) = max(-NegaMax(s', -β, -α))</span>. Under <strong>Principal Variation Search (PVS)</strong>, candidate moves are pre-sorted by heuristic priority. The primary move is searched with a full <span class="code-badge">[α, β]</span> window, while all remaining siblings are evaluated using null-window scout searches <span class="code-badge">[-α - 1, -α]</span> to force aggressive beta-cutoffs.</p>
+
+        <h3>3. Dynamic Move Ordering & Transposition Caching</h3>
         <ul>
-          <li><strong>64-bit Bitboard Representation:</strong> The 7×6 grid is mapped into a single 49-bit integer bitmask. Win condition validation executes in <strong>4 bitwise shifts and AND instructions</strong> (&lt; 2 nanoseconds), with zero memory allocations.</li>
-          <li><strong>Negamax Formulation:</strong> Replaces dual-agent Minimax with a mathematically symmetric $NegaMax(s, \alpha, \beta) = \max (-NegaMax(s', -\beta, -\alpha))$ recursive function.</li>
-          <li><strong>Principal Variation Search (PVS):</strong> Searches the first candidate move with a full $[\alpha, \beta]$ window, then uses null-window scout searches $[-\alpha - 1, -\alpha]$ for remaining moves, pruning unpromising branches exponentially faster.</li>
-          <li><strong>Iterative Deepening Search (IDS):</strong> Employs time-bounded iterative search with move ordering from previous depth seeding subsequent iterations.</li>
-          <li><strong>Zobrist Hashing & Transposition Table:</strong> Incremental $O(1)$ 64-bit state hashing caching evaluation flags (Exact, Lowerbound, Upperbound) and best moves.</li>
+          <li><strong>Zobrist Incremental Hashing:</strong> State updates execute in O(1) via XOR bit manipulation.</li>
+          <li><strong>Transposition Cache:</strong> 600,000 entries caching exact evaluations, upper bounds, and lower bounds to eliminate redundant subtree evaluation.</li>
+          <li><strong>Killer & History Heuristics:</strong> Dynamically elevates non-capture moves that induced beta-cutoffs in sibling branches.</li>
+          <li><strong>Center Proximity:</strong> Prioritizes central columns [3, 2, 4, 1, 5, 0, 6] controlling up to 16 winning alignments.</li>
         </ul>
 
-        <h3>💼 Quantifiable Resume Bullet Points (Copy & Paste)</h3>
-        <div style="background: var(--bg-primary); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; font-size: 0.8rem; line-height: 1.6; color: #cceeff;">
-          • Engineered a high-performance Connect Four adversarial AI engine utilizing a 64-bit bitboard architecture, accelerating state-transition throughput by 24.8x to over 430,000+ nodes/second.<br><br>
-          • Implemented Negamax search enhanced with Principal Variation Search (PVS), Alpha-Beta pruning, and Iterative Deepening, reducing effective branching factor from 7 down to 2.1.<br><br>
-          • Architected incremental Zobrist state hashing and a 600K-entry transposition cache, achieving an 84% reduction in redundant subtree expansions.<br><br>
-          • Designed an interactive web visualizer with multi-threaded Web Workers, streaming real-time telemetry, live win probabilities, and tactical move explanations at 60 FPS.
-        </div>
-
-        <h3>🎯 Common Interview Questions & Talking Points</h3>
-        <ul>
-          <li><strong>Why use Bitboards over 2D Arrays?</strong> Bitboards compress the board into CPU registers, eliminating pointer dereferences and cache misses. Win detection drops from looping over 69 lines down to 4 single-cycle SIMD bit shifts.</li>
-          <li><strong>How does PVS improve on standard Alpha-Beta?</strong> If move ordering is accurate, subsequent moves are unlikely to beat $\alpha$. Testing with a minimal null window $[-\alpha-1, -\alpha]$ triggers immediate cutoffs without full-width evaluations.</li>
-        </ul>
+        <h3>4. Web Worker Threading</h3>
+        <p>Search computation is completely decoupled from the DOM. A dedicated Web Worker executes tree traversal on a background thread while posting progress metrics to the main UI thread, preserving a 60 FPS animation loop during deep plies.</p>
       </div>
     </div>
   </div>
